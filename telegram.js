@@ -1,6 +1,6 @@
 const TelegramBot = require("node-telegram-bot-api");
 const token = process.env?.TG_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: false });
 const path = require("path");
 const fs = require("fs");
 const moment = require("moment");
@@ -998,4 +998,4 @@ function uploadNewsToTelegram() {
   }
 }
 
-module.exports = { uploadNewsToTelegram };
+module.exports = { uploadNewsToTelegram, bot };

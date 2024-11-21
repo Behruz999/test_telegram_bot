@@ -414,11 +414,44 @@ const express = require("express");
 const app = express();
 const env = process.env;
 const cors = require("cors");
-const { uploadNewsToTelegram } = require("./telegram");
+const { uploadNewsToTelegram, bot } = require("./telegram");
+
+const TOKEN = process.env.TG_BOT_TOKEN; // tg token
+const webhook_path = "webhook";
+
+// prod
+const server_url = "https://test-telegram-bot-36on.onrender.com";
+const webhook_url = `${server_url}/${webhook_path}${TOKEN}`;
+
+// dev
+// const NGROK_URL = "https://b2ca-93-188-86-111.ngrok-free.app";
+// const webhook_url = `${NGROK_URL}/${webhook_path}${TOKEN}`;
 
 app.use(express.json());
 app.use(cors());
 app.use(express.static(process.env.UPLOAD_PATH));
+
+app.post(`/webhook${TOKEN}`, async (req, res) => {
+  try {
+    const updated = bot.processUpdate(req.body);
+    console.log(updated, '- updated on /webhook${TOKEN}')
+    res.status(200).send("ok");
+  } catch (err) {
+    console.error("Error processing update:", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+async function setTelegramWebHook() {
+  try {
+    const response = await bot.setWebHook(webhook_url);
+    console.log("Webhook set response:", response);
+  } catch (err) {
+    console.error("Failed to set webhook:", err.message);
+  }
+}
+
+setTelegramWebHook();
 
 uploadNewsToTelegram();
 
